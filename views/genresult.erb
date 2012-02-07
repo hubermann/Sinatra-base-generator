@@ -1,0 +1,298 @@
+<h2>Initial config (app.rb)</h2>
+require 'sinatra'<br />
+require 'sequel'<br />
+#require 'pony' #if need emails option<br /><br />
+#flash messages<br />
+require 'rack-flash'<br />
+use Rack::Flash, :sweep => true<br />
+enable :sessions<br /><br />
+# if need install some gem need use:(sudo gem install gem_name)
+<br />
+<br />
+<br />
+<br />
+
+#create 2 folders, (/data and /public)
+set :public_folder, File.dirname(__FILE__) + '/public' <br /><br />
+
+DB = Sequel.sqlite('data/<%= @clase%>.db')
+
+
+
+<br />
+<br />
+<hr />
+<h2>Layout base for testing</h2>
+
+
+&lt;html><br />
+&lt;header><br />
+	&lt;title><%= @clase%>&lt;/title><br />
+	&lt;style type="text/css"><br />
+	body{width: 800px; margin: 0 auto; padding: 15px; font-family: Verdana; font-size: 12px;}<br />
+	a{color: #999; padding: 2px 4px; margin: 3px 3px 0 0 ; border:1px solid #e2e2e2; text-decoration: none;}<br />
+	a :hover{color: #333;}<br />
+	#error{color: orange;}<br />
+	#notice{color: green;}<br />
+	.gral a{border: none; color: blue;}<br />
+	&lt;/style><br />
+	
+&lt;/header><br />
+	&lt;body><br />
+
+&lt;p class="gral">&lt;a  href="/<%= @clase%>"> <%= @clase%>&lt;/a>&lt;/p><br />
+&lt;br /><br />
+&lt;% %w[notice error warning alert info].each do |key| %><br />
+&lt;% if flash[key] %><br />
+&lt;div id="&lt;%= key %>" class="flash"><br />
+&lt;%= flash[key] %><br />
+&lt;/div><br />
+&lt;% end %><br />
+&lt;% end %><br />
+<br />
+&lt;%= yield %><br />
+	&lt;/body><br />
+&lt;/html><br />
+
+
+<br />
+<br />
+<!--
+<hr />
+<h2>errors (inside your layout file or inside the forms)</h2> 
+&lt;% %w[notice error warning alert info].each do |key| %><br />
+  &lt;% if flash[key] %><br />
+    &lt;div id="&lt;%= key %>" class="flash"><br />
+      &lt;%= flash[key] %><br />
+    &lt;/div><br />
+  &lt;% end %><br />
+&lt;% end %><br /><br />
+<br />
+<br />
+
+-->
+
+
+<hr />
+<br />
+<h2>Database (<%= @clase%> table)</h2>
+
+DB.create_table :<%= @clase%> do<br />
+&nbsp;&nbsp;primary_key :id, :type=>Integer<br />
+  <% @fields.each do |field| %>
+&nbsp;&nbsp;String :<%= field %><br />
+  <% end %> 
+&nbsp;&nbsp;#reorder your type of fields (Integer, Time, text, etc.)<br />
+end
+
+<p><%= @clase%> = DB[:<%= @clase%>] #dataset</p>
+
+<p>class <%= @claseUP %> &lt; Sequel::Model <br />
+end
+</p>
+<hr />
+
+<h2>View (app.rb)</h2>
+
+get '/<%= @clase %>' do <br />
+&nbsp;&nbsp;@<%= @clase %> = <%= @claseUP %>.order(:id.desc).all # or can use @<%= @claseUP %>.all<br />
+&nbsp;&nbsp; erb :<%= @clase %><br />
+end
+<br />
+<br />
+<hr />
+<h2><%= @clase %>.erb</h2>
+&lt;h1><%= @clase %>&lt;/h1><br />
+
+&lt;p>&lt;a href="/<%= @clase %>"><%= @clase %>&lt;/a> - &lt;a href="/<%= @clase_s %>/new">New <%= @clase_s %>&lt;/a>&lt;/p>
+<br />
+
+
+&lt;% @<%= @clase %>.each do |i|%><br />
+
+ <% @fields.each do |field| %>
+&nbsp;&nbsp;&lt;p> &lt;%= i.<%= field %> %>&lt;/p><br /><br />
+  <% end %> 
+  <br /><br />
+
+&lt;p>&lt;a href="/<%= @clase_s %>/&lt;%= i.id %>/edit">Edit&lt;/a>
+&lt;a href="/<%= @clase_s %>/&lt;%= i.id %>/delete">Delete&lt;/a>
+&lt;a href="/<%= @clase_s %>/&lt;%= i.id %>">View&lt;/a>
+&lt;/p>
+<br />
+&lt;% end %>
+<br />
+<hr />
+
+<h2>Edit form</h2>
+<h3><%= @clase_s%>form.erb</h3>
+
+
+
+<p>&lt;form action="/<%= @clase_s%>/save" method="post"> </p>
+<% @fields.each do |field| %>
+<p>&lt;p>&lt;label for="<%= field %>"><%= field %>&lt;/label>&lt;/p> </p>
+<p>&lt;p>&lt;input type="text" name="<%= field %>" id="<%= field %>" placeholder="<%= field %>" value="&lt;%= @<%= @clase_s%>.<%= field %> %>" />&lt;/p> </p>
+
+<% end %>
+&lt;input type="hidden" name="id" value="&lt;%= @<%= @clase_s%>.id %>" /><br /><br />
+&lt;input type="hidden" name="_method" value="put" /><br />
+<p>&lt;p>&lt;button type="submit">Enviar&lt;/button>&lt;/p></p>
+<p>&lt;/form></p>
+
+
+<!--
+<h4>.haml</h4>
+
+<p>%form(action="/<%= @clase_s%>/save" method="post")</p>
+<% @fields.each do |field| %>
+<p>&nbsp;&nbsp;%p</p>
+&nbsp;&nbsp;&nbsp;&nbsp;%label(for="<%= field %>")<%= field %></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;%input{:type => "text", :name => "<%= field %>",:value => "&lt;%=@<%= @clase_s%>.<%= field %>%>", :placeholder => "<%= field %>"}
+<% end %>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;%input#id(type="hidden" name="id"  value="&lt;%= @<%= @clase_s %>.id %>")</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;%input#_method(type="hidden" name="_method"  value="put")</p>
+<p>&nbsp;&nbsp;%p</p>
+&nbsp;&nbsp;&nbsp;&nbsp;%button(type="submit")Save
+ -->
+<hr />
+
+<h2>New (app.rb)</h2>
+get '/<%= @clase_s %>/new' do <br />
+&nbsp;&nbsp;@<%= @clase_s %> = <%= @claseUP %>.new(
+	<% @fields.each do |field| %>
+:<%= field %> => nil,
+<% end %>)<br />
+&nbsp;&nbsp;erb :<%= @clase_s %>form<br />
+end
+<br />
+<br />
+<hr />
+<h2>Edit (app.rb)</h2>
+get '/<%= @clase_s %>/:id/edit' do <br />
+&nbsp;&nbsp;@<%= @clase_s %> = <%= @claseUP %>[:id => params['id']]<br />
+&nbsp;&nbsp;erb :<%= @clase_s %>form<br />
+end
+<br />
+<br />
+<hr />
+<h2>Save (app.rb)</h2>
+
+put '/<%= @clase_s %>/save' do <br />
+
+&nbsp;&nbsp;@<%= @clase_s %> = <%= @claseUP %>.new(
+	<% @fields.each do |field| %>
+:<%= field %> => params['<%= field %>'],
+<% end %>)<br /><br />
+	
+&nbsp;&nbsp;flash[:error] = ""<br />
+&nbsp;&nbsp;flash[:notice] = ""<br />
+&nbsp;&nbsp;check = true<br /><br />
+
+<% @fields.each do |field| %>
+
+&nbsp;&nbsp;if params['<%= field %>'] == ""<br />
+&nbsp;&nbsp;&nbsp;&nbsp;flash[:error] += '&lt;p>Complete <%= field %> field&lt;/p>'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;check = false<br />
+&nbsp;&nbsp;end<br /><br />
+<% end %>
+
+
+&nbsp;&nbsp;if check != false<br /><br />
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;if params['id'] !=""<br />
+&nbsp;&nbsp;&nbsp;&nbsp;@<%= @clase_s %> = <%= @claseUP %>[:id => params['id']]<br />
+&nbsp;&nbsp;&nbsp;&nbsp;@<%= @clase_s %>.update(
+<% @fields.each do |field| %>
+:<%= field %> => params['<%= field %>'],
+<% end %>
+)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;flash[:notice] += '&lt;p><%= @clase_s %> succesfully updated!&lt;/p>'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;else<br />
+&nbsp;&nbsp;&nbsp;&nbsp;@<%= @clase_s %>.save<br />
+&nbsp;&nbsp;&nbsp;&nbsp;flash[:notice] += '&lt;p><%= @clase_s %> succesfully saved!&lt;/p>'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;end<br /><br />
+
+
+&nbsp;&nbsp;redirect '/<%= @clase %>'<br />
+&nbsp;&nbsp;end<br />
+&nbsp;&nbsp;erb :<%= @clase_s %>form<br />
+end<br />
+
+<br /><br /><hr />
+<h2><%= @clase_s %> detail</h2>
+get '/<%= @clase_s %>/:id' do <br />
+&nbsp;&nbsp;@<%= @clase_s %> = <%= @claseUP %>[:id => params['id']] <br />
+&nbsp;&nbsp;erb :<%= @clase_s %>
+<br />
+end
+
+<h2><%= @clase_s %>.erb</h2>
+&lt;h1><%= @clase_s %> detail&lt;/h1>
+
+
+<% @fields.each do |field| %>
+
+<p>&lt;p>&lt;%= @<%= @clase_s%>.<%= field %> %>&lt;/p> </p>
+
+<% end %>
+
+<br /><br /><hr />
+<h2>Delete</h2>
+
+get '/<%= @clase_s%>/:id/delete' do<br />
+&nbsp;&nbsp;@<%= @clase_s%> = <%= @claseUP%>[:id => params['id']] <br />
+&nbsp;&nbsp;erb :delete_<%= @clase_s%><br />
+end
+
+<br />
+<br />
+<br />
+
+
+post '/<%= @clase_s%>/:id/delete' do<br /><br />
+  
+&nbsp;&nbsp;flash[:error] = ""<br />
+&nbsp;&nbsp;flash[:notice] = ""<br /><br /><br />
+
+	
+&nbsp;&nbsp;if params['confirm']<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<%= @claseUP%>[:id => params['id']].delete<br />
+&nbsp;&nbsp;&nbsp;&nbsp;flash[:notice]='&lt;p><%= @clase_s%> deleted!&lt;/p>'<br />
+&nbsp;&nbsp;&nbsp;&nbsp;redirect '/<%= @clase%>'<br />
+&nbsp;&nbsp;else<br />
+&nbsp;&nbsp;&nbsp;&nbsp;flash[:error]='&lt;p>Please confirm!&lt;/p>'<br /><br />
+	
+&nbsp;&nbsp;end<br /><br />
+	
+&nbsp;&nbsp;@<%= @clase_s%> = <%= @claseUP%>[:id => params['id']] <br />
+&nbsp;&nbsp;erb :delete_<%= @clase_s%><br />
+end<br />
+
+<br /><br />
+<hr />
+<h2>delete_<%= @clase_s%>.erb</h2>
+
+
+
+
+<% @fields.each do |field| %>
+
+<p>&lt;p>&lt;%= @<%= @clase_s%>.<%= field %> %>&lt;/p> </p>
+
+<% end %>
+
+
+&lt;form action="/<%= @clase_s%>/&lt;%= @<%= @clase_s%>.id %>/delete" method="post"><br />
+&lt;input type="hidden" name="id" value="&lt;%= @<%= @clase_s%>.id%>" /><br /><br />
+
+&lt;p>&lt;label for="title">Confirm delete this <%= @clase_s%>?&lt;/label>&lt;/p><br />
+
+&lt;p>&lt;input type="checkbox" name="confirm" id="confirm"  />&lt;/p><br />
+
+
+&lt;p>&lt;button type="submit">Delete&lt;/button>&lt;/p><br />
+&lt;/form><br /><br /><br />
+
+

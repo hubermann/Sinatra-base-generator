@@ -1,0 +1,43 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Buenosweb.com - sinatra base generator</title>
+	<style type="text/css">
+	body{font-family: Verdana; font-size: .8em; width: 800px; margin: 0 auto; padding: 1em 0; background: #EAF5F7;}
+	header{width: 800px;  background: #19BCD7; color: #FFF; -webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+padding: 10px 15px;
+}
+header h1{font-weight: normal; margin: 10px;}
+footer{width: 800px;  background: #19BCD7; color: #FFF; -webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+padding: 10px 15px;
+}
+footer a{color: #FFF; text-decoration: none}
+
+#content{padding: 15px}
+
+form input, textarea{width: 300px;  padding: 4px; border: 1px solid #e2e2e2; background: #FFF;}
+textarea{height: 120px}
+	</style>
+<html>
+	<body>
+	<header>
+	<h1>Sinatra base Generator</h1>
+	</header>
+	<div id="content">
+	
+	<%= yield %>
+	<p>Notice:</p>
+	<p>This is not a serious app.</p>
+	<p>This little app is just a example that I created, when start at try ruby and sinatra.</p>
+<p>Please, excuse my bad english</p>
+<p>tw:  @Hubermann</p>
+	</div>
+	<footer><a href="http://www.buenosweb.com">Buenosweb.com</a> | 2012</footer>
+	</body>
+</html>
